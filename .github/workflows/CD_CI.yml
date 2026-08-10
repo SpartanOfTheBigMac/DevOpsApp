@@ -4,22 +4,22 @@ on:
     push:
         branches: [main]
 jobs:
-   build: 
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 12
+    deploy:
+        env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            AWS_DEFAULT_REGION: us-east-1
+        runs-on: ubuntu-latest
+        steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+        - name: Set up terraform
+          uses: hashicorp/setup-terraform@v1
+          with:
+            terraform_version: 1.15.8
+        - name: Install dependencies
+          run: npm install
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run tests
-        run: npm test
-
         
         
         
@@ -29,19 +29,7 @@ jobs:
         
         
         
-        
-        
-        
-        
-        
-        
-              #deploy:
-        #env:
-           # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            #AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          ## AWS_REGION: ${{ secrets.AWS_REGION }}
-          #  AWS_DEFAULT_REGION: us-east-1
-          
+      
 
 
         
