@@ -1,14 +1,13 @@
 import boto3
-from flask import Flask
+from flask import Flask, request
 from datetime import datetime, date
 
 app = Flask(__name__)
+#app.secret_key = ''  
 
-# AWS crap here
+#AWS_region = 
 
-
-
-dynamodb = boto3.resource('dynamodb', region_name= AWS_region)
+dynamodb = boto3.resource('dynamodb') #region_name= AWS_region)
 table = dynamodb.Table('Hardware')
 
 Equipment = [      
@@ -56,4 +55,51 @@ def index():
     return {'bookings': bookings}
 
 
+@app.route('book', methods=['POST'])
+def book_device():
+    device_id = request.form.get('device_id')
+    booking_date = request.form.get('date').strip()
+    booking_time = request.form.get('time').strip()
+    user = request.form.get('user').strip()
+
+    if not device_id or not booking_date or not booking_time or not user:
+        return {'error': 'All fields are required'}, 400
+
+    # Check if the device is available
+    available_devices = [item for item in Equipment if item['id'] == device_id]
+    if not available_devices:
+        return {'error': 'Device not found'}, 404
+
+    # Create a new booking
+    new_booking = {
+        'device_id': device_id,
+        'date': booking_date,
+        'time': booking_time,
+        'user': user
+    }
+
+    # Save the booking to DynamoDB
+    try:
+        table.put_item(Item=new_booking)
+    except Exception as e:
+        print(f"Error saving booking: {e}")
+        return {'error': 'Failed to save booking'}, 500
+
+    return {'message': 'Booking successful'}, 201
+
+@app.route('/cancel', methods=['POST'])
+def cancel_booking():
+    item_id = request.form.get('item_id')
+
+    if not item_id:
+        return {'error': 'Item ID is required'}, 400
+
+    # Delete the booking from DynamoDB
+    try:
+        table.delete_item(Key={'item_id': item_id})
+    except Exception as e:
+        print(f"Error deleting booking: {e}")
+        return {'error': 'Failed to delete booking'}, 500
+
+    return {'message': 'Booking cancelled successfully'}, 200
 
