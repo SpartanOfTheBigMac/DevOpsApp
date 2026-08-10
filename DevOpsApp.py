@@ -24,10 +24,10 @@ Equipment_by_id = {item['id']: item['name'] for item in Equipment}
 def device_table_scan():
     devices = []
     response = table.scan()
-    devices.extend(response.get('items', []))
+    devices.extend(response.get('Items', []))
     while 'LastEvaluatedKey' in response:
         response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
-        devices.extend(response.get('items', []))
+        devices.extend(response.get('Items', []))
     return devices
 
 
@@ -47,8 +47,8 @@ def index():
                 'device_name': device_name,
                 'date': booking['date'],
                 'time': booking['time'],
-                'item_id': booking['item_id']
-            })
+                'device_id': booking['device_id']
+            })  
 
     except Exception as e:
         print(f"Error fetching bookings: {e}")
@@ -56,15 +56,20 @@ def index():
     return {'bookings': bookings}
 
 
-@app.route('book', methods=['POST'])
+@app.route('/book', methods=['POST'])
 def book_device():
     device_id = request.form.get('device_id')
-    booking_date = request.form.get('date').strip()
-    booking_time = request.form.get('time').strip()
-    user = request.form.get('user').strip()
+    booking_date = request.form.get('date')
+    booking_time = request.form.get('time')
+    user = request.form.get('user')
 
     if not device_id or not booking_date or not booking_time or not user:
-        return {'error': 'All fields are required'}, 400
+             return {'error': 'All fields are required'}, 400
+
+    device_id = device_id.strip()
+    booking_date = booking_date.strip()
+    booking_time = booking_time.strip()
+    user = user.strip()
 
     # Check if the device is available
     available_devices = [item for item in Equipment if item['id'] == device_id]
@@ -90,14 +95,14 @@ def book_device():
 
 @app.route('/cancel', methods=['POST'])
 def cancel_booking():
-    item_id = request.form.get('item_id')
+    device_id = request.form.get('device_id')
+    booking_date = request.form.get('date')
 
-    if not item_id:
-        return {'error': 'Item ID is required'}, 400
+    if not device_id or not booking_date:
+        return {'error': 'device_id and date are required'}, 400
 
-    # Delete the booking from DynamoDB
     try:
-        table.delete_item(Key={'item_id': item_id})
+        table.delete_item(Key={'device_id': device_id, 'date': booking_date})
     except Exception as e:
         print(f"Error deleting booking: {e}")
         return {'error': 'Failed to delete booking'}, 500
