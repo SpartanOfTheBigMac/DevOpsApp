@@ -1,14 +1,12 @@
 import boto3
 from flask import Flask, request
 from datetime import datetime, date
+from botocore.exceptions import ClientError
+
 
 
 app = Flask(__name__)
-#app.secret_key = ''  
-
-#AWS_region = 
-
-dynamodb = boto3.resource('dynamodb') #region_name= AWS_region)
+dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('Hardware')
 
 Equipment = [      
@@ -84,14 +82,17 @@ def book_device():
         'user': user
     }
 
-    # Save the booking to DynamoDB
     try:
-        table.put_item(Item=new_booking)
-    except Exception as e:
+        table.put_item(
+            Item=new_booking,
+            ConditionExpression="attribute_not_exists(device_id) AND attribute_not_exists(#d)",
+            ExpressionAttributeNames={"#d": "date"}
+        )
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
+            return {'error': 'That device is already booked for that date'}, 409
         print(f"Error saving booking: {e}")
         return {'error': 'Failed to save booking'}, 500
-
-    return {'message': 'Booking successful'}, 201
 
 @app.route('/cancel', methods=['POST'])
 def cancel_booking():

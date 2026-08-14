@@ -7,17 +7,53 @@ jobs:
     deploy:
         env:
             AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRECT_ACCESS_KEY}}
+            AWS_SESSION_TOKEN: ${{ secrets.ASW_SESSION_TOKEN }}
             AWS_DEFAULT_REGION: us-east-1
         runs-on: ubuntu-latest
         steps:
-        - name: Checkout code
-          uses: actions/checkout@v2
-        - name: Set up terraform
-          uses: hashicorp/setup-terraform@v1
-          with:
-            terraform_version: 1.15.8
+          
+         - name: Checkout repository
+           uses: actions/checkout@v4
 
+         - name: Create private key file for Ansible
+           run: |
+            mkdir -p ~/.ssh
+            echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/new-key.pem
+            chmod 600 ~/.ssh/new-key.pem
+
+         - name: Setup Terraform
+           uses: hashicorp/setup-terraform@v3
+
+         - name: Terraform init
+           working-directory: terraform
+           run: terraform init
+
+         - name: Terraform apply
+           working-directory: terraform
+           run: terraform apply -auto-approve
+
+         - name: Get EC2 public IP
+           id: tf-ip
+           working-directory: terraform
+           run: echo "ip=$(terraform output -raw ec2_public_ip)" >> $GITHUB_OUTPUT
+
+          
+         - name: Install Ansible
+           run: sudo apt-get update && sudo apt-get install -y ansible
+
+         - name: Disable host key checking
+           run: echo "ANSIBLE_HOST_KEY_CHECKING=False" >> $GITHUB_ENV
+
+         - name: Create Ansible inventory
+           working-directory: ansible
+           run: |
+            echo "[web]" > inventory
+            echo "${{ steps.tf-ip.outputs.ip }} ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/new-key.pem" >> inventory
+
+         - name: Test SSH manually
+           run: |
+            ssh -o StrictHostKeyChecking=no -i ~/.ssh/new-key.pem ubuntu@${{ steps.tf-ip.outputs.ip }} "echo connected"
         
         
         
