@@ -2,6 +2,10 @@ resource "aws_security_group" "web_github" {
   name        = "web-github"
   description = "Allow SSH and HTTP"
 
+provider "aws" {
+  region = "us-east-1"
+}
+
   ingress {
     description = "SSH"
     from_port   = 22
