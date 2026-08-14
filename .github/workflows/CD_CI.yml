@@ -16,7 +16,7 @@ jobs:
          - name: Checkout repository
            uses: actions/checkout@v4
 
-         - name: Create private key file for Ansible
+         - name: Create private key file for SSH
            run: |
             mkdir -p ~/.ssh
             echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/new-key.pem
@@ -37,19 +37,6 @@ jobs:
            id: tf-ip
            working-directory: terraform
            run: echo "ip=$(terraform output -raw ec2_public_ip)" >> $GITHUB_OUTPUT
-
-          
-         - name: Install Ansible
-           run: sudo apt-get update && sudo apt-get install -y ansible
-
-         - name: Disable host key checking
-           run: echo "ANSIBLE_HOST_KEY_CHECKING=False" >> $GITHUB_ENV
-
-         - name: Create Ansible inventory
-           working-directory: ansible
-           run: |
-            echo "[web]" > inventory
-            echo "${{ steps.tf-ip.outputs.ip }} ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/new-key.pem" >> inventory
 
          - name: Test SSH manually
            run: |
