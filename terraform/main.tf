@@ -2,7 +2,7 @@ resource "aws_security_group" "web_github" {
   name        = "web-github"
   description = "Allow SSH and HTTP"
 
-provider "aws" {
+provider "AWS" {
   region = "us-east-1"
 }
 
