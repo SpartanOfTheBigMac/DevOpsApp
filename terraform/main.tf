@@ -32,7 +32,7 @@ resource "aws_security_group" "web_github" {
 }
 
 resource "aws_instance" "web_github" {
-  ami           = "ami-0e86e20dae9224db8" # Ubuntu 22.04 LTS (us-east-1)
+  ami           = "ami-0e86e20dae9224db8"
   instance_type = var.instance_type
   key_name      = "vockey"
   security_groups = [aws_security_group.web_github.name]
@@ -40,9 +40,9 @@ resource "aws_instance" "web_github" {
   tags = {
     Name = "academy-web_github"
   }
-
-  output "ec2_public_ip" {
-  value = aws_instance.web_github.public_ip
-
-  }
 }
+
+output "ec2_public_ip" {
+  value = aws_instance.web_github.public_ip
+}
+
