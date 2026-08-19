@@ -14,12 +14,13 @@ resource "aws_security_group" "web_github" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-ingress {
-  from_port   = 5000
-  to_port     = 5000
-  protocol    = "tcp"
-  cidr_blocks = ["0.0.0.0/0"]
-}
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   egress {
     description = "All outbound"
@@ -35,10 +36,6 @@ resource "aws_instance" "web_github" {
   instance_type   = var.instance_type
   key_name        = "vockey"
   security_groups = [aws_security_group.web_github.name]
-
-  tags = {
-    Name = "academy-web_github"
-  }
 
   user_data = <<-EOF
               #!/bin/bash
@@ -57,15 +54,16 @@ resource "aws_instance" "web_github" {
               source venv/bin/activate
 
               pip install --upgrade pip
-              pip install -r requirements.txt
+              pip install flask boto3 gunicorn
 
-              gunicorn --bind 0.0.0.0:5000 DevOpsApp:app
+              gunicorn --bind 0.0.0.0:80 DevOpsApp:app
               EOF
+
+  tags = {
+    Name = "academy-web_github"
+  }
 }
-
-
 
 output "ec2_public_ip" {
   value = aws_instance.web_github.public_ip
 }
-
