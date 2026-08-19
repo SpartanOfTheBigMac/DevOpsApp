@@ -38,9 +38,6 @@ jobs:
            working-directory: terraform
            run: echo "ip=$(terraform output -raw ec2_public_ip)" >> $GITHUB_OUTPUT
 
-         - name: Test SSH manually
-           run: |
-            ssh -o StrictHostKeyChecking=no -i ~/.ssh/new-key.pem ubuntu@${{ steps.tf-ip.outputs.ip }} "echo connected"
         
         
         
