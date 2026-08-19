@@ -10,7 +10,7 @@ dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('Hardware')
 
 Equipment = [      
-        {'id':'ipad-trolley', 'name':'Tech services iPad Trolley (16x devices)'},
+        {'id':'ipad-trolley', 'name':'Tech services iPad Trolley (15x devices)'},
         {'id':'chromebook-trolley-1', 'name':'Tech services Chromebook Trolley (16x devices)'},
         {'id':'chromebook-trolley-2', 'name':'Library Chromebook Trolley (16x devices)'},
         {'id':'chromebook-trolley-3', 'name':'English Chromebook Trolley (32x devices)'},
