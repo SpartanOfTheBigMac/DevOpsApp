@@ -2,8 +2,8 @@ provider "aws" {
   region = "us-east-1"
 }
 
-resource "aws_security_group" "web_github" {
-  name        = "web-github"
+resource "aws_security_group" "web_github13" {
+  name        = "web_github13"
   description = "Allow SSH and HTTP"
 
   ingress {
@@ -31,11 +31,11 @@ resource "aws_security_group" "web_github" {
   }
 }
 
-resource "aws_instance" "web_github" {
+resource "aws_instance" "web_github13" {
   ami             = "ami-0e86e20dae9224db8"
   instance_type   = var.instance_type
   key_name        = "vockey"
-  security_groups = [aws_security_group.web_github.name]
+  security_groups = [aws_security_group.web_github13.name]
 
   user_data = <<-EOF
               #!/bin/bash
