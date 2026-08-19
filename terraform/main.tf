@@ -33,7 +33,7 @@ resource "aws_security_group" "web_github" {
 
 resource "aws_instance" "web_github" {
   ami           = "ami-0e86e20dae9224db8"
-  instance_type = var.instance_type
+  instance_type = t2.micro
   key_name      = "vockey"
   security_groups = [aws_security_group.web_github.name]
 
