@@ -14,13 +14,12 @@ resource "aws_security_group" "web_github" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress {
-    description = "HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+ingress {
+  from_port   = 5000
+  to_port     = 5000
+  protocol    = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+}
 
   egress {
     description = "All outbound"
@@ -36,6 +35,29 @@ resource "aws_instance" "web_github" {
   instance_type   = var.instance_type
   key_name        = "vockey"
   security_groups = [aws_security_group.web_github.name]
+
+  user_data = <<-EOF
+              #!/bin/bash
+
+              apt-get update -y
+              apt-get install -y python3 python3-pip python3-venv git
+
+              cd /home/ubuntu
+
+              git clone https://github.com/SpartanOfTheBigMac/DevOpsApp.git
+
+              cd DevOpsApp
+
+              python3 -m venv venv
+
+              source venv/bin/activate
+
+              pip install --upgrade pip
+              pip install -r requirements.txt
+
+              gunicorn --bind 0.0.0.0:5000 DevOpsApp:app
+              EOF
+}
 
   tags = {
     Name = "academy-web_github"
