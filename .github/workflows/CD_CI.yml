@@ -16,12 +16,6 @@ jobs:
          - name: Checkout repository
            uses: actions/checkout@v4
 
-         - name: Create private key file for SSH
-           run: |
-            mkdir -p ~/.ssh
-            echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/new-key.pem
-            chmod 600 ~/.ssh/new-key.pem
-
          - name: Setup Terraform
            uses: hashicorp/setup-terraform@v3
 
