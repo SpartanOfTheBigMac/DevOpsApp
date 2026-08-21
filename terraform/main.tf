@@ -74,14 +74,14 @@ resource "aws_instance" "web_github13" {
 
               git clone https://github.com/SpartanOfTheBigMac/DevOpsApp.git
 
-              cd DevOpsApp
+              cd DevOpsApp/app
 
-              python3 -m venv venv
+              python3 -m venv ../venv
 
-              source venv/bin/activate
+              source ../venv/bin/activate
 
               pip install --upgrade pip
-              pip install flask boto3 gunicorn
+              pip install -r requirements.txt gunicorn
 
               gunicorn --bind 0.0.0.0:80 DevOpsApp:app
               EOF

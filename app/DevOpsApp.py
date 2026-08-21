@@ -1,5 +1,5 @@
 import boto3
-from flask import Flask, request, gunicorn
+from flask import Flask, request
 from datetime import datetime, date
 from botocore.exceptions import ClientError
 
