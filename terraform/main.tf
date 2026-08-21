@@ -31,11 +31,38 @@ resource "aws_security_group" "web_github13" {
   }
 }
 
+data "aws_vpc" "default" {
+  default = true
+}
+
+data "aws_internet_gateway" "default" {
+  filter {
+    name   = "attachment.vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+}
+
+resource "aws_default_route_table" "default" {
+  default_route_table_id = data.aws_vpc.default.main_route_table_id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = data.aws_internet_gateway.default.id
+  }
+
+  tags = {
+    Name = "default-route-table"
+  }
+}
+
+
 resource "aws_instance" "web_github13" {
   ami             = "ami-0e86e20dae9224db8"
   instance_type   = var.instance_type
   key_name        = "vockey"
   security_groups = [aws_security_group.web_github13.name]
+
+   depends_on = [aws_default_route_table.default]
 
   user_data = <<-EOF
               #!/bin/bash
