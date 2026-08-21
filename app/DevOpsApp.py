@@ -32,7 +32,7 @@ def device_table_scan():
 
 @app.route('/', methods=['GET'])
 def index():
-    bookings = []
+    bookings = ['hello world']
     try:
         raw_bookings = device_table_scan()
         today_str = date.today().isoformat()
